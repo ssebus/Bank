@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM FINANSOWY BĄBEL-PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; }
+        .glass-shell { width: 100%; max-width: 440px; height: 90vh; background: #ffffff; border-radius: 48px; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 70px rgba(0,0,0,0.4); }
+        .auth-overlay { position: fixed; inset: 0; z-index: 1000; background: #0f172a; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .view { display: none; padding: 2rem; }
+        .view.active { display: block; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="auth-layer" class="auth-overlay">
+        <div class="w-full max-w-sm bg-white p-10 rounded-[3rem] shadow-2xl">
+            <h2 id="auth-header" class="text-3xl font-black text-center mb-8">ZALOGUJ SIĘ</h2>
+            <input type="text" id="username" placeholder="Nazwa użytkownika" class="w-full p-5 bg-gray-100 rounded-2xl mb-4 font-bold outline-none border-2 focus:border-blue-500">
+            <input type="password" id="password" placeholder="Hasło" class="w-full p-5 bg-gray-100 rounded-2xl mb-6 font-bold outline-none border-2 focus:border-blue-500">
+            <button id="auth-action-btn" onclick="processAuth()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg hover:bg-blue-700 transition">WEJDŹ DO SYSTEMU</button>
+            <p id="toggle-auth" class="text-center mt-6 text-sm font-bold text-gray-400 cursor-pointer hover:text-blue-600">Nie masz konta? Zarejestruj się</p>
+        </div>
+    </div>
+
+    <div class="glass-shell hidden" id="app-shell">
+        <header class="p-8 flex justify-between items-center border-b">
+            <h1 class="font-black text-xl">BĄBEL-OS PRO</h1>
+            <button onclick="performLogout()" class="text-[10px] font-black bg-gray-100 px-4 py-2 rounded-full">WYLOGUJ</button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto">
+            <section id="view-main" class="view active">
+                <div class="bg-gray-900 text-white p-8 rounded-[2.5rem] mb-8">
+                    <p class="text-[10px] uppercase tracking-widest opacity-60">Aktualne Saldo</p>
+                    <h2 class="text-5xl font-black mt-2"><span id="display-balance">0.00</span> €</h2>
+                </div>
+                <button onclick="showAtmModal()" class="w-full py-6 bg-emerald-500 text-white rounded-2xl font-black text-lg mb-8 hover:bg-emerald-600">🎰 OPERACJE BANKOMATU</button>
+                <div id="goals-list" class="space-y-4"></div>
+                <button onclick="addGoal()" class="w-full py-6 border-4 border-dashed border-gray-200 rounded-2xl font-black text-gray-400 mt-4">+ DODAJ CEL</button>
+            </section>
+        </main>
+    </div>
+
+    <div id="atm-modal" class="hidden fixed inset-0 z-[2000] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[3rem]">
+            <h3 class="text-2xl font-black mb-6">Wpłata / Wypłata</h3>
+            <input type="number" id="atm-amount" placeholder="Kwota €" class="w-full p-5 bg-gray-100 rounded-2xl mb-4 font-bold text-xl">
+            <div class="flex gap-4">
+                <button onclick="processTransaction(1)" class="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black">WPŁAĆ</button>
+                <button onclick="processTransaction(-1)" class="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black">WYPŁAĆ</button>
+            </div>
+            <button onclick="closeModal()" class="w-full mt-4 text-gray-400 font-bold">ANULUJ</button>
+        </div>
+    </div>
+
+    <script>
+        // CORE ENGINE
+        const App = {
+            state: JSON.parse(localStorage.getItem('b_data')) || { balance: 0, goals: [], user: null },
+            
+            init() {
+                this.updateUI();
+            },
+
+            save() {
+                localStorage.setItem('b_data', JSON.stringify(this.state));
+                this.updateUI();
+            },
+
+            updateUI() {
+                document.getElementById('display-balance').innerText = this.state.balance.toFixed(2);
+                document.getElementById('goals-list').innerHTML = this.state.goals.map(g => 
+                    `<div class="p-6 bg-white border-2 rounded-2xl font-black flex justify-between shadow-sm">
+                        <span>${g.name}</span>
+                        <span class="text-blue-600">${g.val}€</span>
+                    </div>`
+                ).join('');
+            }
+        };
+
+        function processAuth() {
+            const user = document.getElementById('username').value;
+            if(user) {
+                App.state.user = user;
+                document.getElementById('auth-layer').style.display = 'none';
+                document.getElementById('app-shell').classList.remove('hidden');
+                App.init();
+            }
+        }
+
+        function processTransaction(mult) {
+            const amt = parseFloat(document.getElementById('atm-amount').value);
+            if(!isNaN(amt)) {
+                App.state.balance += (amt * mult);
+                App.save();
+                closeModal();
+            }
+        }
+
+        function addGoal() {
+            const name = prompt("Nazwa celu:");
+            const val = prompt("Ile potrzebujesz €:");
+            if(name && val) {
+                App.state.goals.push({ name, val });
+                App.save();
+            }
+        }
+
+        function showAtmModal() { document.getElementById('atm-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('atm-modal').classList.add('hidden'); }
+        function performLogout() { localStorage.clear(); location.reload(); }
+
+        App.init();
+    </script>
+</body>
+</html>
