@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Bąbelkowy Ogród Finansowy PRO</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+<style>
+
+.white-glow-bg{
+    background:linear-gradient(135deg,#e0f2fe 0%,#f8fafc 50%,#f0fdf4 100%);
+    background-size:200% 200%;
+    animation:lightShine 12s ease infinite;
+}
+
+@keyframes lightShine{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+@keyframes wave-turn{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
+
+.wave-effect{
+    animation:wave-turn 7s linear infinite;
+}
+
+@keyframes bubble-rise{
+    0%{
+        transform:translateY(0) scale(.5);
+        opacity:0;
+    }
+
+    15%{
+        opacity:.9;
+    }
+
+    85%{
+        opacity:.5;
+    }
+
+    100%{
+        transform:translateY(-180px) scale(1.3);
+        opacity:0;
+    }
+}
+
+.bubble{
+    animation:bubble-rise infinite linear;
+}
+
+.color-bubble{
+    position:absolute;
+    border-radius:9999px;
+    animation:bubble-rise infinite linear;
+    opacity:.8;
+}
+
+@keyframes insert-bill{
+    0%{
+        bottom:-70px;
+        transform:scale(1) translateX(40px);
+        opacity:1;
+    }
+
+    100%{
+        bottom:60px;
+        transform:scale(.1) translateX(40px);
+        opacity:0;
+    }
+}
+
+@keyframes eject-bill{
+    0%{
+        bottom:60px;
+        transform:scale(.1) translateX(40px);
+        opacity:0;
+    }
+
+    100%{
+        bottom:-20px;
+        transform:scale(1) translateX(40px);
+        opacity:1;
+    }
+}
+
+.anim-bill-in{
+    animation:insert-bill 1.4s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+.anim-bill-out{
+    animation:eject-bill 1.4s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+.neon-glow-cyan{
+    box-shadow:0 0 20px rgba(6,182,212,.35);
+}
+
+.neon-glow-emerald{
+    box-shadow:0 0 25px rgba(16,185,129,.45);
+}
+
+</style>
+</head>
+
+<body class="white-glow-bg min-h-screen flex items-center justify-center p-4 font-sans text-slate-800">
+
+<div class="bg-white/80 backdrop-blur-2xl w-full max-w-md h-[900px] rounded-[42px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.1)] border-8 border-white overflow-hidden flex flex-col relative">
+
+<header class="bg-gradient-to-r from-cyan-400 to-emerald-500 p-5 flex justify-between items-center border-b border-white/40 shadow-sm text-white relative z-30">
+
+<div class="flex items-center gap-3">
+
+<button id="menu-trigger"
+onclick="toggleSidebar(true)"
+class="hidden text-2xl hover:opacity-80 transition cursor-pointer">
+
+☰
+
+</button>
+
+<div>
+<h1 class="font-black text-base tracking-tight drop-shadow-sm">
+🫧 BĄBELKOWY OGRÓD
+</h1>
+
+<p class="text-[10px] text-emerald-50 italic font-medium">
+✨ Premium System
+</p>
+</div>
+
+</div>
+
+<div class="flex items-center gap-2">
+
+<button id="logout-trigger"
+onclick="runLogout()"
+class="hidden bg-white/25 hover:bg-white/40 border border-white/30 text-[10px] px-2 py-1.5 rounded-full font-bold transition whitespace-nowrap">
+
+Reset
+
+</button>
+
+</div>
+
+</header>
+
+<!-- SIDEBAR -->
+
+<div id="sidebar-menu"
+class="absolute inset-y-0 left-0 w-64 bg-white shadow-2xl border-r border-slate-100 z-50 transform -translate-x-full transition-transform duration-300 flex flex-col">
+
+<div class="p-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-slate-100 flex justify-between items-center">
+
+<span class="font-black text-slate-700 text-xs tracking-wider">
+🌾 MENU
+</span>
+
+<button onclick="toggleSidebar(false)"
+class="text-slate-400 text-lg font-bold p-1 hover:text-slate-600">
+
+✕
+
+</button>
+
+</div>
+
+<div class="p-4 space-y-2 flex-1">
+
+<button onclick="switchView('main')"
+class="w-full text-left font-bold text-slate-700 p-3 rounded-xl hover:bg-cyan-50 hover:text-cyan-600 transition flex items-center gap-2.5">
+
+🫧 Skarbonka
+
+</button>
+
+<button onclick="switchView('garden')"
+class="w-full text-left font-bold text-slate-700 p-3 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition flex items-center gap-2.5">
+
+🏡 Ogród
+
+</button>
+
+<button onclick="switchView('history')"
+class="w-full text-left font-bold text-slate-700 p-3 rounded-xl hover:bg-slate-50 hover:text-slate-600 transition flex items-center gap-2.5">
+
+📊 Historia
+
+</button>
+
+</div>
+
+<div class="p-5 border-t border-slate-100 text-center bg-slate-50">
+
+<p id="sidebar-user"
+class="text-xs font-mono text-slate-400 truncate"></p>
+
+</div>
+
+</div>
+
+<div id="sidebar-overlay"
+onclick="toggleSidebar(false)"
+class="absolute inset-0 bg-black/20 hidden z-40"></div>
+
+<!-- LOGIN -->
+
+<div id="auth-panel"
+class="flex-1 flex flex-col justify-center px-8 bg-white/40">
+
+<div class="text-center mb-8">
+
+<div class="inline-block p-4 bg-emerald-100 text-emerald-500 rounded-full mb-3 shadow-inner">
+<span class="text-4xl">🧑‍🌾</span>
+</div>
+
+<h2 class="text-2xl font-black tracking-tight text-slate-800">
+Otwórz Portfel i Ogród €
+</h2>
+
+<p class="text-xs text-slate-500 mt-1">
+Zbieraj pieniądze i rozwijaj ogród
+</p>
+
+</div>
+
+<form onsubmit="executeAuth(event)"
+class="space-y-4">
+
+<div>
+
+<label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+E-mail
+</label>
+
+<input type="email"
+id="user-email"
+required
+placeholder="user@domain.com"
+class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800 text-sm shadow-sm">
+
+</div>
+
+<div>
+
+<label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+Hasło
+</label>
+
+<input type="password"
+id="user-password"
+required
+placeholder="••••••••"
+class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800 text-sm shadow-sm">
+
+</div>
+
+<button type="submit"
+class="w-full bg-gradient-to-r from-emerald-400 to-cyan-500 text-white font-black py-4 rounded-xl shadow-lg transition cursor-pointer text-sm uppercase tracking-wider">
+
+Uruchom System 💳
+
+</button>
+
+</form>
+
+</div>
+
+<!-- MAIN -->
+
+<div id="view-main"
+class="hidden flex-1 flex flex-col overflow-y-auto p-5 space-y-6">
+
+<div class="bg-white border-2 border-cyan-100 p-5 rounded-3xl shadow-sm relative overflow-hidden neon-glow-cyan">
+
+<p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+Wolne Środki
+</p>
+
+<h3 class="text-4xl font-black mt-1 text-slate-800 font-mono">
+<span id="display-balance">0.00</span> €
+</h3>
+
+<button onclick="launchAtm()"
+class="mt-4 w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-black py-3.5 rounded-xl shadow-md transition flex justify-center items-center gap-2 cursor-pointer uppercase tracking-wider">
+
+🎰 Bankomat
+
+</button>
+
+</div>
+
+<div>
+
+<div class="flex justify-between items-center mb-4">
+
+<h4 class="font-black text-slate-700 text-xs tracking-widest uppercase">
+Cele oszczędnościowe
+</h4>
+
+<button onclick="showNewGoalForm()"
+class="text-xs font-bold bg-cyan-100 hover:bg-cyan-200 text-cyan-700 px-3 py-1.5 rounded-full transition shadow-sm">
+
++ Nowy Cel
+
+</button>
+
+</div>
+
+<div id="goals-list-box"
+class="space-y-4"></div>
+
+</div>
+
+</div>
+
+<!-- GARDEN -->
+
+<div id="view-garden"
+class="hidden flex-1 flex flex-col p-5 overflow-y-auto space-y-6">
+
+<div class="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-2xl p-4 flex justify-between items-center shadow-sm">
+
+<div>
+
+<h4 class="font-black text-xs uppercase tracking-wider text-blue-800">
+💧 Woda
+</h4>
+
+<p class="text-[10px] text-slate-500 mt-0.5">
+Podlewaj rośliny
+</p>
+
+</div>
+
+<div class="text-right">
+
+<span id="water-drops-count"
+class="text-2xl font-mono font-black text-blue-600">
+
+0
+
+</span>
+
+<span class="text-xs font-bold text-blue-600">
+L
+</span>
+
+</div>
+
+</div>
+
+<div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 flex justify-between items-center shadow-sm">
+
+<div>
+
+<h4 class="font-black text-xs uppercase tracking-wider text-amber-800">
+🌱 Odblokowane nasiona
+</h4>
+
+<p class="text-[10px] text-slate-500 mt-0.5">
+Za dojrzałe rośliny
+</p>
+
+</div>
+
+<div class="text-right">
+
+<span id="seed-points-count"
+class="text-2xl font-mono font-black text-amber-600">
+
+0
+
+</span>
+
+</div>
+
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+
+<script>
+
+for(let i=0;i<4;i++){
+
+document.write(`
+
+<div onclick="clickGardenSlot(${i})"
+class="bg-white border border-slate-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center h-48 cursor-pointer hover:border-emerald-400 transition relative overflow-hidden shadow-sm">
+
+<div id="slot-avatar-${i}"
+class="text-4xl mb-2">
+
+🟤
+
+</div>
+
+<div id="slot-name-${i}"
+class="text-xs font-black text-slate-700">
+
+Pusta gleba
+
+</div>
+
+<div id="slot-progress-box-${i}"
+class="w-full mt-3 hidden">
+
+<div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+
+<div id="slot-bar-${i}"
+class="bg-emerald-500 h-full w-[0%]"></div>
+
+</div>
+
+<p id="slot-percentage-${i}"
+class="text-[9px] font-mono text-slate-400 mt-1">
+
+Wzrost: 0%
+
+</p>
+
+</div>
+
+</div>
+
+`);
+
+}
+
+</script>
+
+</div>
+
+</div>
+
+<!-- HISTORY -->
+
+<div id="view-history"
+class="hidden flex-1 flex flex-col p-5 overflow-y-auto">
+
+<h3 class="font-black text-slate-700 text-sm tracking-widest uppercase mb-4">
+📊 Historia
+</h3>
+
+<div id="history-list"
+class="space-y-2 flex-1"></div>
+
+</div>
+
+<!-- ATM -->
+
+<div id="atm-modal"
+class="absolute inset-x-0 bottom-0 top-0 bg-slate-900/40 backdrop-blur-md hidden z-50 flex flex-col justify-end">
+
+<div class="bg-white border-t-4 border-cyan-400 rounded-t-[38px] p-6 space-y-4 shadow-2xl max-h-[90%] flex flex-col overflow-y-auto">
+
+<div class="flex justify-between items-center border-b border-slate-100 pb-3">
+
+<h3 class="font-black text-lg text-slate-800 flex items-center gap-2">
+🏧 Bankomat €
+</h3>
+
+<button onclick="hideAtm()"
+class="text-slate-400 hover:text-slate-600 font-bold text-xl p-1">
+
+✕
+
+</button>
+
+</div>
+
+<div class="space-y-4">
+
+<div>
+
+<label class="block text-xs font-bold text-slate-500 mb-1">
+Rodzaj operacji
+</label>
+
+<select id="atm-direction"
+class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 font-bold text-sm text-slate-700 focus:outline-none">
+
+<option value="deposit">💵 Wpłać</option>
+<option value="withdraw">💸 Wypłać</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label class="block text-xs font-bold text-slate-500 mb-1">
+Kwota €
+</label>
+
+<input type="number"
+id="atm-value-input"
+placeholder="0.00"
+class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 font-black text-center text-2xl text-slate-800 focus:outline-none">
+
+</div>
+
+<div>
+
+<label class="block text-xs font-bold text-slate-500 mb-1">
+Opis wypłaty (opcjonalnie)
+</label>
+
+<input type="text"
+id="atm-note-input"
+placeholder="np. jedzenie, zakupy..."
+class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 focus:outline-none">
+
+</div>
+
+<button onclick="startAtmAnimationRoutine()"
+class="w-full bg-gradient-to-r from-cyan-400 to-emerald-500 text-white font-black py-4 rounded-xl transition shadow-xl uppercase tracking-wider text-xs cursor-pointer">
+
+Zatwierdź ⚡
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- GOAL MODAL -->
+
+<div id="new-goal-modal"
+class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-6">
+
+<div class="bg-white border border-slate-100 rounded-3xl p-6 w-full space-y-4 shadow-2xl">
+
+<h3 class="font-black text-lg text-slate-800">
+🎯 Nowy Cel
+</h3>
+
+<div class="space-y-3">
+
+<input type="text"
+id="new-goal-title"
+placeholder="Nazwa celu"
+class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 focus:outline-none">
+
+<input type="number"
+id="new-goal-max"
+placeholder="Kwota docelowa"
+class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 focus:outline-none">
+
+</div>
+
+<div class="grid grid-cols-2 gap-3 pt-2">
+
+<button onclick="hideNewGoalForm()"
+class="bg-slate-100 text-slate-600 font-bold py-3 rounded-xl text-xs">
+
+Anuluj
+
+</button>
+
+<button onclick="saveCreatedGoal()"
+class="bg-emerald-400 text-white font-black py-3 rounded-xl text-xs">
+
+Stwórz
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let loggedUserSession='';
+
+let mainStorage={
+balance:0,
+waterDrops:0,
+seedPoints:0,
+goals:[],
+history:[],
+garden:[
+{planted:false,name:'',emoji:'',progress:0,rewarded:false},
+{planted:false,name:'',emoji:'',progress:0,rewarded:false},
+{planted:false,name:'',emoji:'',progress:0,rewarded:false},
+{planted:false,name:'',emoji:'',progress:0,rewarded:false}
+]
+};
+
+function saveToLocalStorage(){
+
+localStorage.setItem(
+'babel_gospodarstwo_data',
+JSON.stringify(mainStorage)
+);
+
+}
+
+function loadFromLocalStorage(){
+
+localStorage.removeItem('babel_gospodarstwo_data');
+localStorage.removeItem('babel_user_session');
+
+}
+
+function executeAuth(e){
+
+e.preventDefault();
+
+loggedUserSession=
+document.getElementById('user-email').value;
+
+setupLoggedInUI();
+
+}
+
+function setupLoggedInUI(){
+
+document.getElementById('auth-panel')
+.classList.add('hidden');
+
+document.getElementById('menu-trigger')
+.classList.remove('hidden');
+
+document.getElementById('logout-trigger')
+.classList.remove('hidden');
+
+document.getElementById('sidebar-user')
+.innerText=loggedUserSession;
+
+switchView('main');
+
+}
+
+function runLogout(){
+
+location.reload();
+
+}
+
+function toggleSidebar(open){
+
+const menu=
+document.getElementById('sidebar-menu');
+
+const overlay=
+document.getElementById('sidebar-overlay');
+
+if(open){
+
+menu.classList.remove('-translate-x-full');
+overlay.classList.remove('hidden');
+
+}else{
+
+menu.classList.add('-translate-x-full');
+overlay.classList.add('hidden');
+
+}
+
+}
+
+function switchView(viewName){
+
+document.getElementById('view-main')
+.classList.add('hidden');
+
+document.getElementById('view-garden')
+.classList.add('hidden');
+
+document.getElementById('view-history')
+.classList.add('hidden');
+
+if(viewName==='main'){
+
+document.getElementById('view-main')
+.classList.remove('hidden');
+
+renderSystemDashboard();
+
+}
+
+if(viewName==='garden'){
+
+document.getElementById('view-garden')
+.classList.remove('hidden');
+
+renderGarden();
+
+}
+
+if(viewName==='history'){
+
+document.getElementById('view-history')
+.classList.remove('hidden');
+
+renderHistory();
+
+}
+
+toggleSidebar(false);
+
+}
+
+function renderSystemDashboard(){
+
+document.getElementById('display-balance')
+.innerText=mainStorage.balance.toFixed(2);
+
+const box=
+document.getElementById('goals-list-box');
+
+box.innerHTML='';
+
+if(mainStorage.goals.length===0){
+
+box.innerHTML=`
+<div class="text-center py-10 text-slate-400 text-xs italic bg-white rounded-2xl border border-dashed border-slate-200">
+Brak celów oszczędnościowych
+</div>
+`;
+
+return;
+
+}
+
+mainStorage.goals.forEach(goal=>{
+
+const percent=
+Math.min(
+Math.round((goal.current/goal.target)*100),
+100
+);
+
+const achieved=percent>=100;
+
+const topOffset=100-percent;
+
+let elementsHTML='';
+
+const colors=[
+'bg-pink-300',
+'bg-cyan-300',
+'bg-yellow-300',
+'bg-emerald-300',
+'bg-violet-300',
+'bg-orange-300'
+];
+
+for(let i=0;i<12;i++){
+
+const color=
+colors[Math.floor(Math.random()*colors.length)];
+
+elementsHTML+=`
+<div
+class="color-bubble ${color}"
+style="
+width:${Math.random()*12+5}px;
+height:${Math.random()*12+5}px;
+left:${Math.random()*100}%;
+bottom:-10px;
+animation-delay:${Math.random()*3}s;
+animation-duration:${Math.random()*3+2}s;
+">
+</div>
+`;
+
+}
+
+const goalCard=
+document.createElement('div');
+
+goalCard.className=
+"bg-white border border-slate-100 p-5 rounded-3xl shadow-sm flex flex-col items-center relative overflow-hidden";
+
+goalCard.innerHTML=`
+
+<div class="text-center font-black text-slate-800 text-sm mb-0.5">
+${goal.name}
+</div>
+
+<div class="text-xs font-mono text-slate-400 mb-4">
+${goal.current.toFixed(0)} € z ${goal.target.toFixed(0)} €
+</div>
+
+<div class="w-40 h-40 rounded-full bg-slate-50 p-1.5 mb-4 relative border-4 ${achieved ? 'border-emerald-400 neon-glow-emerald':'border-cyan-400 neon-glow-cyan'} overflow-hidden">
+
+<div class="w-full h-full bg-white rounded-full relative overflow-hidden">
+
+<div
+class="wave-effect absolute -left-1/2 w-[200%] h-[200%] rounded-[39%] ${achieved ? 'bg-gradient-to-b from-emerald-400 to-teal-500':'bg-gradient-to-b from-cyan-400 to-blue-500'}"
+style="top:${topOffset}%;">
+</div>
+
+<div class="absolute inset-0 pointer-events-none">
+${elementsHTML}
+</div>
+
+<div class="absolute inset-0 flex flex-col items-center justify-center font-mono z-10">
+
+<span class="text-2xl font-black text-white drop-shadow-sm">
+${percent}%
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+box.appendChild(goalCard);
+
+});
+
+}
+
+function renderGarden(){
+
+document.getElementById('water-drops-count')
+.innerText=mainStorage.waterDrops;
+
+document.getElementById('seed-points-count')
+.innerText=mainStorage.seedPoints;
+
+mainStorage.garden.forEach((slot,index)=>{
+
+const avatar=
+document.getElementById(`slot-avatar-${index}`);
+
+const name=
+document.getElementById(`slot-name-${index}`);
+
+const progBox=
+document.getElementById(`slot-progress-box-${index}`);
+
+const bar=
+document.getElementById(`slot-bar-${index}`);
+
+const pctText=
+document.getElementById(`slot-percentage-${index}`);
+
+if(!slot.planted){
+
+avatar.innerText='🟤';
+name.innerText='Pusta gleba';
+
+progBox.classList.add('hidden');
+
+}else{
+
+avatar.innerText=slot.emoji;
+
+name.innerText=
+`${slot.name} ${slot.progress>=100 ? '🎉':''}`;
+
+progBox.classList.remove('hidden');
+
+bar.style.width=`${slot.progress}%`;
+
+pctText.innerText=
+`Wzrost: ${slot.progress}%`;
+
+}
+
+});
+
+}
+
+function clickGardenSlot(index){
+
+const slot=mainStorage.garden[index];
+
+if(!slot.planted){
+
+const plants=[
+{name:'Marchewka',emoji:'🥕'},
+{name:'Pomidor',emoji:'🍅'},
+{name:'Jabłoń',emoji:'🍎'},
+{name:'Cebula',emoji:'🧅'},
+{name:'Winogrono',emoji:'🍇'},
+{name:'Truskawka',emoji:'🍓'},
+{name:'Arbuz',emoji:'🍉'},
+{name:'Cytryna',emoji:'🍋'}
+];
+
+const random=
+plants[Math.floor(Math.random()*plants.length)];
+
+mainStorage.garden[index]={
+planted:true,
+name:random.name,
+emoji:random.emoji,
+progress:10,
+rewarded:false
+};
+
+saveToLocalStorage();
+renderGarden();
+
+return;
+
+}
+
+if(slot.progress>=100){
+
+mainStorage.garden[index]={
+planted:false,
+name:'',
+emoji:'',
+progress:0,
+rewarded:false
+};
+
+saveToLocalStorage();
+renderGarden();
+
+return;
+
+}
+
+if(mainStorage.waterDrops<=0){
+
+alert('Brak wody!');
+return;
+
+}
+
+mainStorage.waterDrops-=1;
+
+slot.progress=
+Math.min(slot.progress+25,100);
+
+if(slot.progress>=100 && !slot.rewarded){
+
+slot.rewarded=true;
+
+mainStorage.seedPoints+=1;
+
+alert('🎉 Zdobyto nowe nasiono!');
+
+}
+
+saveToLocalStorage();
+renderGarden();
+
+}
+
+function renderHistory(){
+
+const hList=
+document.getElementById('history-list');
+
+hList.innerHTML='';
+
+if(mainStorage.history.length===0){
+
+hList.innerHTML=`
+<p class="text-center py-10 text-slate-400 text-xs italic">
+Brak historii.
+</p>
+`;
+
+return;
+
+}
+
+mainStorage.history.forEach(item=>{
+
+const row=
+document.createElement('div');
+
+row.className=
+`p-3 bg-white border border-slate-100 rounded-xl flex justify-between items-center text-xs shadow-sm`;
+
+row.innerHTML=`
+
+<div class="flex-1">
+
+<p class="font-bold text-slate-700">
+${item.type}
+</p>
+
+<p class="text-[9px] font-mono text-slate-400">
+${item.date}
+</p>
+
+${item.note ? `
+<p class="text-[10px] text-cyan-600 font-semibold mt-1">
+📝 ${item.note}
+</p>
+` : ''}
+
+</div>
+
+<span class="${
+item.type==='Wpłata'
+?'text-emerald-600 font-bold'
+:'text-red-500 font-bold'
+}">
+
+${
+item.type==='Wpłata'
+?'+'
+:'-'
+}
+
+${item.amount.toFixed(2)} €
+
+</span>
+
+`;
+
+hList.appendChild(row);
+
+});
+
+}
+
+function launchAtm(){
+
+document.getElementById('atm-modal')
+.classList.remove('hidden');
+
+}
+
+function hideAtm(){
+
+document.getElementById('atm-modal')
+.classList.add('hidden');
+
+}
+
+function startAtmAnimationRoutine(){
+
+const mode=
+document.getElementById('atm-direction').value;
+
+const cashAmount=
+parseFloat(
+document.getElementById('atm-value-input').value
+);
+
+const noteValue=
+document.getElementById('atm-note-input').value.trim();
+
+if(isNaN(cashAmount)||cashAmount<=0){
+
+alert('Wpisz poprawną kwotę!');
+return;
+
+}
+
+if(
+mode==='withdraw' &&
+cashAmount>mainStorage.balance
+){
+
+alert('Brak środków!');
+return;
+
+}
+
+const now=new Date();
+
+const timeStr=
+now.toLocaleString([],{
+year:'numeric',
+month:'2-digit',
+day:'2-digit',
+hour:'2-digit',
+minute:'2-digit',
+second:'2-digit'
+});
+
+setTimeout(()=>{
+
+if(mode==='deposit'){
+
+mainStorage.balance+=cashAmount;
+
+mainStorage.history.unshift({
+type:'Wpłata',
+amount:cashAmount,
+date:timeStr,
+note:''
+});
+
+}else{
+
+mainStorage.balance-=cashAmount;
+
+mainStorage.history.unshift({
+type:'Wypłata',
+amount:cashAmount,
+date:timeStr,
+note:noteValue
+});
+
+}
+
+document.getElementById('atm-value-input').value='';
+document.getElementById('atm-note-input').value='';
+
+saveToLocalStorage();
+
+renderSystemDashboard();
+
+hideAtm();
+
+},900);
+
+}
+
+function showNewGoalForm(){
+
+document.getElementById('new-goal-modal')
+.classList.remove('hidden');
+
+}
+
+function hideNewGoalForm(){
+
+document.getElementById('new-goal-modal')
+.classList.add('hidden');
+
+}
+
+function saveCreatedGoal(){
+
+const title=
+document.getElementById('new-goal-title').value;
+
+const maxVal=
+parseFloat(
+document.getElementById('new-goal-max').value
+);
+
+if(!title||isNaN(maxVal)||maxVal<=0){
+
+return;
+
+}
+
+mainStorage.goals.push({
+id:Date.now(),
+name:title,
+current:0,
+target:maxVal
+});
+
+document.getElementById('new-goal-title').value='';
+document.getElementById('new-goal-max').value='';
+
+hideNewGoalForm();
+
+saveToLocalStorage();
+
+renderSystemDashboard();
+
+}
+
+window.onload=function(){
+
+loadFromLocalStorage();
+
+};
+
+</script>
+
+</body>
+</html>
