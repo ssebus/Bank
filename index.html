@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bąbelkowy Ogród Finansowy PRO</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    font-family:sans-serif;
+}
+
+.white-glow-bg{
+    background:linear-gradient(135deg,#dff7ff 0%,#f8fafc 50%,#eafff3 100%);
+    background-size:200% 200%;
+    animation:bgmove 12s ease infinite;
+}
+
+@keyframes bgmove{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+@keyframes wave-turn{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
+
+.wave-effect{
+    animation:wave-turn 8s linear infinite;
+}
+
+@keyframes bubble-rise{
+    0%{
+        transform:translateY(0) scale(0.4);
+        opacity:0;
+    }
+
+    15%{
+        opacity:.9;
+    }
+
+    100%{
+        transform:translateY(-180px) scale(1.3);
+        opacity:0;
+    }
+}
+
+.bubble{
+    animation:bubble-rise linear infinite;
+}
+
+.color-bubble{
+    position:absolute;
+    border-radius:999px;
+}
+
+.neon-glow{
+    box-shadow:0 0 30px rgba(6,182,212,.25);
+}
+
+::-webkit-scrollbar{
+    width:0;
+}
+
+</style>
+</head>
+
+<body class="white-glow-bg min-h-screen flex items-center justify-center p-4">
+
+<div class="bg-white/80 backdrop-blur-2xl w-full max-w-md h-[880px] rounded-[42px] shadow-2xl border-8 border-white overflow-hidden flex flex-col relative">
+
+<header class="bg-gradient-to-r from-cyan-400 to-emerald-500 p-5 flex justify-between items-center text-white">
+
+<div class="flex items-center gap-3">
+
+<button onclick="toggleSidebar(true)"
+class="text-2xl font-black">
+☰
+</button>
+
+<div>
+<h1 class="font-black text-sm">
+🫧 BĄBELKOWY OGRÓD PRO
+</h1>
+
+<p class="text-[10px] italic">
+✨ Magiczny System Oszczędności
+</p>
+</div>
+
+</div>
+
+<button onclick="resetAllData()"
+class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">
+RESET
+</button>
+
+</header>
+
+<!-- SIDEBAR -->
+
+<div id="sidebar"
+class="absolute left-0 top-0 bottom-0 w-64 bg-white z-50 shadow-2xl transform -translate-x-full transition duration-300 flex flex-col">
+
+<div class="p-5 border-b">
+
+<div class="flex justify-between items-center">
+
+<h2 class="font-black text-xs">
+🌾 MENU
+</h2>
+
+<button onclick="toggleSidebar(false)">
+✕
+</button>
+
+</div>
+</div>
+
+<div class="p-4 space-y-2">
+
+<button onclick="switchView('main')"
+class="w-full bg-cyan-50 hover:bg-cyan-100 p-3 rounded-xl text-left font-bold text-sm">
+🫧 Skarbonka
+</button>
+
+<button onclick="switchView('garden')"
+class="w-full bg-emerald-50 hover:bg-emerald-100 p-3 rounded-xl text-left font-bold text-sm">
+🏡 Ogród
+</button>
+
+<button onclick="switchView('history')"
+class="w-full bg-slate-100 hover:bg-slate-200 p-3 rounded-xl text-left font-bold text-sm">
+📊 Historia
+</button>
+
+</div>
+
+</div>
+
+<div id="overlay"
+onclick="toggleSidebar(false)"
+class="absolute inset-0 bg-black/20 hidden z-40"></div>
+
+<!-- MAIN -->
+
+<div id="view-main"
+class="flex-1 overflow-y-auto p-5 space-y-6">
+
+<div class="bg-white rounded-3xl p-5 border border-cyan-100 neon-glow">
+
+<p class="text-[10px] uppercase font-bold text-slate-400">
+Wolne środki
+</p>
+
+<h2 class="text-4xl font-black font-mono text-slate-800 mt-2">
+<span id="balance">0.00</span> €
+</h2>
+
+<button onclick="openATM()"
+class="mt-4 w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase">
+🏧 Otwórz Bankomat
+</button>
+
+</div>
+
+<div>
+
+<div class="flex justify-between items-center mb-3">
+
+<h3 class="font-black text-xs uppercase tracking-wider text-slate-700">
+Cele oszczędnościowe
+</h3>
+
+<button onclick="showGoalModal()"
+class="bg-cyan-100 text-cyan-700 px-3 py-2 rounded-full text-xs font-black">
++ Nowy cel
+</button>
+
+</div>
+
+<div id="goals-box"
+class="space-y-4"></div>
+
+</div>
+
+</div>
+
+<!-- OGRÓD -->
+
+<div id="view-garden"
+class="hidden flex-1 overflow-y-auto p-5 space-y-6">
+
+<div class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-3xl p-5">
+
+<div class="flex justify-between items-center">
+
+<div>
+
+<h3 class="font-black text-xs uppercase">
+💧 Woda
+</h3>
+
+<p class="text-[10px] text-slate-500 mt-1">
+Zdobywasz wodę za oszczędzanie
+</p>
+
+</div>
+
+<div class="text-right">
+
+<div id="waterCount"
+class="text-3xl font-black text-cyan-600">
+0
+</div>
+
+<div class="text-xs font-bold text-cyan-600">
+Litrów
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="bg-white rounded-3xl p-4 border border-emerald-100">
+
+<div class="flex justify-between items-center mb-3">
+
+<h3 class="font-black text-xs uppercase">
+🌱 Odblokowane nasiona
+</h3>
+
+<div id="seedCount"
+class="font-black text-emerald-600">
+4
+</div>
+
+</div>
+
+<p class="text-[10px] text-slate-500">
+Gdy roślina dojrzeje dostajesz nowe nasiono 🌟
+</p>
+
+</div>
+
+<div class="grid grid-cols-2 gap-4"
+id="gardenGrid"></div>
+
+</div>
+
+<!-- HISTORIA -->
+
+<div id="view-history"
+class="hidden flex-1 overflow-y-auto p-5">
+
+<h3 class="font-black text-sm uppercase mb-4">
+📊 Historia Transakcji
+</h3>
+
+<div id="historyBox"
+class="space-y-2"></div>
+
+</div>
+
+<!-- ATM -->
+
+<div id="atmModal"
+class="hidden absolute inset-0 bg-black/40 backdrop-blur-md z-50 flex items-end">
+
+<div class="bg-white rounded-t-[36px] w-full p-6 space-y-4">
+
+<div class="flex justify-between items-center">
+
+<h3 class="font-black text-lg">
+🏧 Bankomat
+</h3>
+
+<button onclick="closeATM()">
+✕
+</button>
+
+</div>
+
+<select id="atmType"
+class="w-full p-4 rounded-2xl border bg-slate-50 font-bold">
+
+<option value="deposit">
+💵 Wpłata
+</option>
+
+<option value="withdraw">
+💸 Wypłata
+</option>
+
+</select>
+
+<input
+id="atmAmount"
+type="number"
+placeholder="0.00"
+class="w-full p-4 rounded-2xl border bg-slate-50 text-center text-2xl font-black"
+/>
+
+<textarea
+id="atmNote"
+placeholder="Opcjonalny opis wydatku np. jedzenie, doładowanie..."
+class="w-full p-4 rounded-2xl border bg-slate-50 text-sm h-24 resize-none"></textarea>
+
+<button onclick="confirmATM()"
+class="w-full bg-gradient-to-r from-cyan-400 to-emerald-500 text-white font-black py-4 rounded-2xl uppercase text-xs">
+Potwierdź
+</button>
+
+</div>
+</div>
+
+<!-- NOWY CEL -->
+
+<div id="goalModal"
+class="hidden absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+
+<div class="bg-white rounded-3xl w-full p-6 space-y-4">
+
+<h3 class="font-black text-lg">
+🎯 Nowy Cel
+</h3>
+
+<input
+id="goalName"
+type="text"
+placeholder="Np. Telefon, Wakacje..."
+class="w-full p-4 rounded-2xl border bg-slate-50"
+/>
+
+<input
+id="goalTarget"
+type="number"
+placeholder="Kwota celu €"
+class="w-full p-4 rounded-2xl border bg-slate-50"
+/>
+
+<div class="grid grid-cols-2 gap-3">
+
+<button onclick="hideGoalModal()"
+class="bg-slate-100 py-3 rounded-2xl font-bold">
+Anuluj
+</button>
+
+<button onclick="createGoal()"
+class="bg-emerald-400 text-white py-3 rounded-2xl font-black">
+Stwórz
+</button>
+
+</div>
+
+</div>
+</div>
+
+<!-- SADZENIE -->
+
+<div id="seedModal"
+class="hidden absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+
+<div class="bg-white rounded-3xl w-full max-w-xs p-6 space-y-4">
+
+<h3 class="font-black text-center">
+🌱 Co chcesz posadzić?
+</h3>
+
+<input type="hidden" id="selectedSlot">
+
+<div class="grid grid-cols-2 gap-2">
+
+<button onclick="plantSeed('🧅','Cebula')"
+class="bg-amber-50 border border-amber-200 p-3 rounded-2xl font-bold text-xs">
+🧅 Cebula
+</button>
+
+<button onclick="plantSeed('🥕','Marchewka')"
+class="bg-orange-50 border border-orange-200 p-3 rounded-2xl font-bold text-xs">
+🥕 Marchewka
+</button>
+
+<button onclick="plantSeed('🍅','Pomidor')"
+class="bg-red-50 border border-red-200 p-3 rounded-2xl font-bold text-xs">
+🍅 Pomidor
+</button>
+
+<button onclick="plantSeed('🍎','Jabłoń')"
+class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl font-bold text-xs">
+🍎 Jabłoń
+</button>
+
+</div>
+
+<button onclick="hideSeedModal()"
+class="w-full text-center text-slate-400 text-sm font-bold">
+Anuluj
+</button>
+
+</div>
+</div>
+
+<script>
+
+let storage = {
+    balance:0,
+    water:0,
+    unlockedSeeds:4,
+    goals:[],
+    history:[],
+    garden:[
+        { planted:false },
+        { planted:false },
+        { planted:false },
+        { planted:false }
+    ]
+};
+
+function saveData(){
+    localStorage.setItem("bubbleGardenPro",JSON.stringify(storage));
+}
+
+function loadData(){
+
+    const data=localStorage.getItem("bubbleGardenPro");
+
+    if(data){
+        storage=JSON.parse(data);
+    }
+}
+
+function resetAllData(){
+
+    if(confirm("Usunąć wszystko i zacząć od zera?")){
+
+        localStorage.removeItem("bubbleGardenPro");
+
+        location.reload();
+    }
+}
+
+function toggleSidebar(open){
+
+    const sidebar=document.getElementById("sidebar");
+    const overlay=document.getElementById("overlay");
+
+    if(open){
+
+        sidebar.classList.remove("-translate-x-full");
+        overlay.classList.remove("hidden");
+
+    }else{
+
+        sidebar.classList.add("-translate-x-full");
+        overlay.classList.add("hidden");
+    }
+}
+
+function switchView(view){
+
+    document.getElementById("view-main").classList.add("hidden");
+    document.getElementById("view-garden").classList.add("hidden");
+    document.getElementById("view-history").classList.add("hidden");
+
+    document.getElementById("view-"+view).classList.remove("hidden");
+
+    toggleSidebar(false);
+
+    renderAll();
+}
+
+function renderAll(){
+
+    renderBalance();
+    renderGoals();
+    renderHistory();
+    renderGarden();
+}
+
+function renderBalance(){
+
+    document.getElementById("balance").innerText=
+    storage.balance.toFixed(2);
+
+    document.getElementById("waterCount").innerText=
+    storage.water;
+
+    document.getElementById("seedCount").innerText=
+    storage.unlockedSeeds;
+}
+
+function randomBubbleColor(){
+
+    const colors=[
+        "#38bdf8",
+        "#34d399",
+        "#f472b6",
+        "#facc15",
+        "#c084fc",
+        "#fb7185"
+    ];
+
+    return colors[Math.floor(Math.random()*colors.length)];
+}
+
+function renderGoals(){
+
+    const box=document.getElementById("goals-box");
+
+    box.innerHTML="";
+
+    if(storage.goals.length===0){
+
+        box.innerHTML=`
+        <div class="text-center text-slate-400 text-xs py-10 bg-white rounded-3xl border border-dashed">
+        Brak celów oszczędnościowych
+        </div>
+        `;
+
+        return;
+    }
+
+    storage.goals.forEach(goal=>{
+
+        const percent=Math.min(
+            Math.round((goal.current/goal.target)*100),
+            100
+        );
+
+        let bubbles="";
+
+        for(let i=0;i<10;i++){
+
+            bubbles+=`
+            <div class="bubble color-bubble"
+            style="
+            width:${Math.random()*12+6}px;
+            height:${Math.random()*12+6}px;
+            left:${Math.random()*100}%;
+            bottom:-20px;
+            background:${randomBubbleColor()};
+            animation-duration:${Math.random()*3+2}s;
+            animation-delay:${Math.random()*2}s;
+            ">
+            </div>
+            `;
+        }
+
+        const top=100-percent;
+
+        const card=document.createElement("div");
+
+        card.className=
+        "bg-white rounded-3xl p-5 border border-cyan-100 relative overflow-hidden";
+
+        card.innerHTML=`
+
+        <div class="text-center font-black text-slate-800">
+        ${goal.name}
+        </div>
+
+        <div class="text-center text-xs text-slate-400 mt-1">
+        ${goal.current.toFixed(2)} € / ${goal.target.toFixed(2)} €
+        </div>
+
+        <div class="w-40 h-40 mx-auto mt-5 rounded-full border-4 border-cyan-300 overflow-hidden relative neon-glow">
+
+            <div class="absolute inset-0 bg-white rounded-full overflow-hidden">
+
+                <div class="wave-effect absolute -left-1/2 w-[200%] h-[200%] bg-gradient-to-b from-cyan-400 to-blue-500 rounded-[38%]"
+                style="top:${top}%;">
+                </div>
+
+                ${bubbles}
+
+                <div class="absolute inset-0 flex items-center justify-center z-20">
+
+                    <div class="text-white font-black text-3xl drop-shadow-lg">
+                    ${percent}%
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mt-5">
+
+            <button onclick="addMoneyToGoal(${goal.id})"
+            class="bg-cyan-100 hover:bg-cyan-200 text-cyan-700 py-3 rounded-2xl text-xs font-black">
+            💧 Dodaj oszczędności
+            </button>
+
+            <button onclick="removeGoal(${goal.id})"
+            class="bg-red-50 hover:bg-red-100 text-red-500 py-3 rounded-2xl text-xs font-black">
+            Usuń
+            </button>
+
+        </div>
+        `;
+
+        box.appendChild(card);
+    });
+}
+
+function showGoalModal(){
+    document.getElementById("goalModal").classList.remove("hidden");
+}
+
+function hideGoalModal(){
+    document.getElementById("goalModal").classList.add("hidden");
+}
+
+function createGoal(){
+
+    const name=document.getElementById("goalName").value;
+    const target=parseFloat(document.getElementById("goalTarget").value);
+
+    if(!name || isNaN(target) || target<=0){
+        return;
+    }
+
+    storage.goals.push({
+        id:Date.now(),
+        name:name,
+        current:0,
+        target:target
+    });
+
+    document.getElementById("goalName").value="";
+    document.getElementById("goalTarget").value="";
+
+    saveData();
+
+    hideGoalModal();
+
+    renderGoals();
+}
+
+function removeGoal(id){
+
+    storage.goals=
+    storage.goals.filter(g=>g.id!==id);
+
+    saveData();
+
+    renderGoals();
+}
+
+function addMoneyToGoal(id){
+
+    const amount=prompt("Ile € chcesz dodać?");
+
+    const value=parseFloat(amount);
+
+    if(isNaN(value) || value<=0){
+        return;
+    }
+
+    if(value>storage.balance){
+
+        alert("Brak pieniędzy.");
+
+        return;
+    }
+
+    const goal=storage.goals.find(g=>g.id===id);
+
+    if(goal){
+
+        goal.current+=value;
+
+        storage.balance-=value;
+
+        storage.water+=Math.floor(value);
+
+        storage.history.unshift({
+            type:"💧 Oszczędności",
+            amount:value,
+            note:"Dodano do celu: "+goal.name,
+            date:new Date().toLocaleString()
+        });
+
+        saveData();
+
+        renderAll();
+    }
+}
+
+function openATM(){
+    document.getElementById("atmModal").classList.remove("hidden");
+}
+
+function closeATM(){
+    document.getElementById("atmModal").classList.add("hidden");
+}
+
+function confirmATM(){
+
+    const type=document.getElementById("atmType").value;
+
+    const amount=parseFloat(
+        document.getElementById("atmAmount").value
+    );
+
+    const note=document.getElementById("atmNote").value;
+
+    if(isNaN(amount) || amount<=0){
+        return;
+    }
+
+    if(type==="withdraw" && amount>storage.balance){
+
+        alert("Brak pieniędzy.");
+
+        return;
+    }
+
+    const now=new Date();
+
+    const fullDate=
+    now.toLocaleDateString()+" "+
+    now.toLocaleTimeString();
+
+    if(type==="deposit"){
+
+        storage.balance+=amount;
+
+        storage.history.unshift({
+            type:"💵 Wpłata",
+            amount:amount,
+            note:note || "Brak opisu",
+            date:fullDate
+        });
+
+    }else{
+
+        storage.balance-=amount;
+
+        storage.history.unshift({
+            type:"💸 Wypłata",
+            amount:amount,
+            note:note || "Brak opisu",
+            date:fullDate
+        });
+    }
+
+    document.getElementById("atmAmount").value="";
+    document.getElementById("atmNote").value="";
+
+    saveData();
+
+    renderAll();
+
+    closeATM();
+}
+
+function renderHistory(){
+
+    const box=document.getElementById("historyBox");
+
+    box.innerHTML="";
+
+    if(storage.history.length===0){
+
+        box.innerHTML=`
+        <div class="text-center text-slate-400 text-xs py-10">
+        Brak historii
+        </div>
+        `;
+
+        return;
+    }
+
+    storage.history.forEach(item=>{
+
+        const row=document.createElement("div");
+
+        row.className=
+        "bg-white border border-slate-100 rounded-2xl p-4";
+
+        row.innerHTML=`
+
+        <div class="flex justify-between items-start">
+
+            <div>
+
+                <div class="font-black text-sm text-slate-700">
+                ${item.type}
+                </div>
+
+                <div class="text-xs text-slate-400 mt-1">
+                ${item.note}
+                </div>
+
+                <div class="text-[10px] text-slate-300 mt-2 font-mono">
+                ${item.date}
+                </div>
+
+            </div>
+
+            <div class="
+            ${item.type.includes('Wpłata') || item.type.includes('Oszczędności')
+            ? 'text-emerald-500'
+            : 'text-red-500'}
+            font-black">
+
+            ${item.amount.toFixed(2)} €
+
+            </div>
+
+        </div>
+        `;
+
+        box.appendChild(row);
+    });
+}
+
+function renderGarden(){
+
+    const grid=document.getElementById("gardenGrid");
+
+    grid.innerHTML="";
+
+    storage.garden.forEach((slot,index)=>{
+
+        const card=document.createElement("div");
+
+        card.className=
+        "bg-white border border-slate-200 rounded-3xl p-4 h-48 flex flex-col items-center justify-center text-center";
+
+        if(!slot.planted){
+
+            card.innerHTML=`
+
+            <div class="text-5xl">
+            🟤
+            </div>
+
+            <div class="mt-2 text-xs font-black text-slate-500">
+            Pusta ziemia
+            </div>
+
+            <button onclick="openSeedModal(${index})"
+            class="mt-4 bg-emerald-100 text-emerald-700 px-3 py-2 rounded-full text-xs font-black">
+            🌱 Posadź
+            </button>
+            `;
+
+        }else{
+
+            card.innerHTML=`
+
+            <div class="text-5xl">
+            ${slot.emoji}
+            </div>
+
+            <div class="mt-2 text-xs font-black text-slate-700">
+            ${slot.name}
+            </div>
+
+            <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+
+                <div class="bg-emerald-500 h-full"
+                style="width:${slot.progress}%;">
+                </div>
+
+            </div>
+
+            <div class="text-[10px] mt-1 text-slate-400">
+            ${slot.progress}%
+            </div>
+
+            <button onclick="waterPlant(${index})"
+            class="mt-3 bg-cyan-100 text-cyan-700 px-3 py-2 rounded-full text-xs font-black">
+            💧 Podlej
+            </button>
+            `;
+        }
+
+        grid.appendChild(card);
+    });
+}
+
+function openSeedModal(index){
+
+    if(storage.unlockedSeeds<=0){
+
+        alert("Brak nasion.");
+
+        return;
+    }
+
+    document.getElementById("selectedSlot").value=index;
+
+    document.getElementById("seedModal").classList.remove("hidden");
+}
+
+function hideSeedModal(){
+    document.getElementById("seedModal").classList.add("hidden");
+}
+
+function plantSeed(emoji,name){
+
+    const index=
+    parseInt(document.getElementById("selectedSlot").value);
+
+    storage.garden[index]={
+        planted:true,
+        emoji:emoji,
+        name:name,
+        progress:0
+    };
+
+    storage.unlockedSeeds--;
+
+    saveData();
+
+    hideSeedModal();
+
+    renderGarden();
+}
+
+function waterPlant(index){
+
+    if(storage.water<=0){
+
+        alert("Brak wody.");
+
+        return;
+    }
+
+    storage.water--;
+
+    storage.garden[index].progress+=25;
+
+    if(storage.garden[index].progress>=100){
+
+        storage.garden[index].progress=100;
+
+        storage.unlockedSeeds++;
+
+        storage.history.unshift({
+            type:"🌱 Zbiory",
+            amount:0,
+            note:"Zdobyto nowe nasiono za: "+storage.garden[index].name,
+            date:new Date().toLocaleString()
+        });
+    }
+
+    saveData();
+
+    renderAll();
+}
+
+loadData();
+
+renderAll();
+
+</script>
+
+</body>
+</html>
